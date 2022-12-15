@@ -1,3 +1,6 @@
+from PIL import Image
+
+
 class Colour:
 	hex_value: str
 	rgb = []
@@ -35,7 +38,10 @@ def hex_to_dec(hex_value):
 	return decimal_value
 	
 def dec_to_hex(decimal_value):
-	return hex(round(decimal_value))[2:]
+	hex_value = hex(round(decimal_value))[2:]
+	if len(hex_value) == 1:
+		return hex_value+hex_value
+	return hex_value
 
 
 def rgb_to_hex(rgb):
@@ -46,7 +52,7 @@ def rgb_to_hex(rgb):
 	return hex_value.upper()
 
 
-class Colour_list:
+class Colour_list():
 	colours = []
 
 	def __init__(self,colours):
@@ -65,6 +71,7 @@ class Colour_list:
 		average_colour = Colour(average_hex_value)
 		return average_colour
 
+
 	def get_hex_value(self):
 		hex_value = input("Enter hex value to covert:\n#").upper()
 
@@ -82,14 +89,25 @@ class Colour_list:
 				return False
 		return True
 
-def main():
-	chosen_colours = Colour_list([])
+def get_pixel_hexs(filepath):
+	hexs = []
+	input_image = Image.open(filepath)
+	pixel_map = input_image.load()
 
-	for i in range(2):
-		new_hex = chosen_colours.get_hex_value()
-		new_colour = Colour(new_hex)
-		chosen_colours.colours.append(new_colour)
+	width, height = input_image.size
+	for i in range(width):
+		for j in range(height):
+			color = input_image.getpixel((i, j))
+			r,g,b = color[0],color[1],color[2]
+			hexs.append(rgb_to_hex((r,g,b)))
+	return hexs
 
-	average_colour = chosen_colours.find_average_colour()
-	print(average_colour.get_hex_display(), average_colour.get_rgb_display())
-main()
+
+def get_color_from_file(filepath):
+	pixels = Colour_list([])
+	pixel_hex_values = get_pixel_hexs(filepath)
+	for index, pixel_hex in enumerate(pixel_hex_values):
+		pixels.colours.append(Colour(pixel_hex))
+
+	avg = pixels.find_average_colour()
+	return avg
